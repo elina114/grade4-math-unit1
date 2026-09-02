@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>四年级数学单元一互动练习</title>
+  <style>
+    :root {
+      --blue: #3157d5;
+      --blue-dark: #233f9f;
+      --ink: #17233c;
+      --muted: #65718a;
+      --line: #d6deee;
+      --page: #f5f8ff;
+      --green: #198754;
+      --red: #c93d4b;
+      --gold: #f3b63f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 3%, #dce9ff 0 100px, transparent 101px),
+        radial-gradient(circle at 94% 2%, #fff0bc 0 72px, transparent 73px),
+        var(--page);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    button, input { font: inherit; }
+    .page { width: min(960px, calc(100% - 28px)); margin: 0 auto; padding: 34px 0 70px; }
+    .hero { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; }
+    .eyebrow { margin: 0 0 7px; color: var(--blue); font-size: .9rem; font-weight: 800; letter-spacing: .12em; }
+    h1 { margin: 0; font-size: clamp(1.9rem, 5vw, 2.8rem); line-height: 1.25; }
+    .intro { margin: 9px 0 0; color: var(--muted); }
+    .print-button, .main-button, .secondary-button {
+      min-height: 44px;
+      padding: 9px 17px;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .print-button:hover, .main-button:hover, .secondary-button:hover { transform: translateY(-1px); }
+    .print-button, .secondary-button { border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .main-button { background: var(--blue); color: #fff; box-shadow: 0 8px 20px rgba(49,87,213,.24); }
+    .student-bar {
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: auto minmax(180px, 1fr) minmax(220px, .75fr);
+      gap: 14px;
+      align-items: center;
+      padding: 15px 17px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 12px 34px rgba(49,87,213,.1);
+      backdrop-filter: blur(8px);
+    }
+    .student-bar label { font-weight: 800; }
+    .student-bar input, .answer-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 13px;
+      border: 2px solid #cbd6eb;
+      border-radius: 11px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+    input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(49,87,213,.12); }
+    .progress-label { display: flex; justify-content: space-between; color: var(--muted); font-size: .88rem; font-weight: 700; }
+    .progress-track { height: 9px; margin-top: 6px; overflow: hidden; border-radius: 99px; background: #dce4f7; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: var(--blue); transition: width .25s ease; }
+    .result {
+      display: none;
+      margin: 20px 0;
+      padding: 24px;
+      border: 2px solid #abc0f4;
+      border-radius: 20px;
+      background: #fff;
+      text-align: center;
+      box-shadow: 0 14px 34px rgba(49,87,213,.1);
+    }
+    .result.show { display: block; }
+    .result .score { margin: 5px 0; color: var(--blue); font-size: clamp(2rem, 6vw, 3rem); font-weight: 900; }
+    .result p { margin: 6px 0; }
+    .submit-status { display: inline-block; margin-top: 8px !important; padding: 7px 12px; border-radius: 99px; color: #106b41; background: #dff7ea; font-weight: 800; }
+    .submit-status.error { color: #a72d39; background: #ffe4e7; }
+    .question-list { display: grid; gap: 15px; margin-top: 20px; }
+    .question-card {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--blue);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 10px 28px rgba(39,65,140,.07);
+    }
+    .question-card.correct { border-left-color: var(--green); background: #fbfffd; }
+    .question-card.wrong { border-left-color: var(--red); background: #fffdfd; }
+    .meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .number, .topic { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: .82rem; font-weight: 800; }
+    .number { color: #fff; background: var(--blue); }
+    .topic { color: #6a4c00; background: #fff0c7; }
+    .question-card h2 { margin: 0; font-size: 1.15rem; line-height: 1.55; }
+    .hint { margin: 7px 0 0; color: var(--muted); font-size: .92rem; }
+    .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+    .option { display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 10px 13px; border: 2px solid #dce3f1; border-radius: 12px; background: #fbfcff; cursor: pointer; font-weight: 700; }
+    .option:hover { border-color: #9bb0ee; }
+    .option:has(input:checked) { border-color: var(--blue); background: #eef2ff; }
+    .option input { width: 18px; height: 18px; accent-color: var(--blue); }
+    .answer-wrap { max-width: 600px; margin-top: 16px; }
+    .answer-wrap label { display: block; margin-bottom: 6px; color: #46536d; font-weight: 800; }
+    .feedback { display: none; margin: 12px 0 0; padding: 9px 12px; border-radius: 10px; font-weight: 700; }
+    .correct .feedback { display: block; color: #106b41; background: #dff7ea; }
+    .wrong .feedback { display: block; color: #a72d39; background: #ffe4e7; }
+    .actions { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
+    .footer-note { margin: 18px 0 0; color: var(--muted); text-align: center; font-size: .88rem; }
+    @media (max-width: 680px) {
+      .page { width: min(100% - 20px, 960px); padding-top: 20px; }
+      .hero { flex-direction: column; }
+      .student-bar { position: static; grid-template-columns: auto 1fr; }
+      .progress { grid-column: 1 / -1; }
+      .options { grid-template-columns: 1fr; }
+      .question-card { padding: 19px 16px; }
+      .actions { flex-direction: column; }
+      .actions button { width: 100%; }
+    }
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { background: #fff; color: #000; font-size: 10.5pt; }
+      .page { width: 100%; padding: 0; }
+      .hero { margin-bottom: 10px; }
+      .hero h1 { font-size: 20pt; }
+      .print-button, .progress, .result, .actions, .feedback, .footer-note { display: none !important; }
+      .student-bar { position: static; display: grid; grid-template-columns: auto 1fr; padding: 8px 0; border: 0; border-radius: 0; box-shadow: none; }
+      .student-bar input { min-height: 32px; border-width: 0 0 1px; border-radius: 0; }
+      .question-list { gap: 7px; margin-top: 8px; }
+      .question-card, .question-card.correct, .question-card.wrong { break-inside: avoid; padding: 9px 12px; border: 1px solid #999; border-left: 4px solid #444; border-radius: 6px; background: #fff; box-shadow: none; }
+      .question-card h2 { font-size: 10.5pt; }
+      .meta { margin-bottom: 3px; }
+      .topic { display: none; }
+      .number { padding: 1px 7px; color: #000; background: #eee; }
+      .options { display: block; margin-top: 5px; }
+      .option { display: inline-flex; min-height: auto; margin-right: 16px; padding: 0; border: 0; background: #fff; }
+      .option input { display: none; }
+      .answer-wrap { margin-top: 5px; }
+      .answer-wrap label { display: none; }
+      .answer-input { min-height: 24px; padding: 0; border-width: 0 0 1px; border-radius: 0; }
+      .hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">四年级数学 · 单元一</p>
+        <h1>100 000以内的整数与数位</h1>
+        <p class="intro">共15题。完成后按“提交答案”，系统会自动评分和订正。</p>
+      </div>
+      <button class="print-button" type="button" onclick="window.print()">打印练习</button>
+    </header>
+
+    <section class="student-bar" aria-label="学生资料与进度">
+      <label for="studentName">姓名</label>
+      <input id="studentName" type="text" placeholder="请输入姓名（必须填写）" autocomplete="name" required>
+      <div class="progress">
+        <div class="progress-label"><span>作答进度</span><span id="progressText">0 / 15</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </section>
+
+    <section class="result" id="result" aria-live="polite">
+      <p>完成练习</p>
+      <div class="score" id="score">0 / 15</div>
+      <p id="message"></p>
+      <p class="submit-status" id="submitStatus"></p>
+    </section>
+
+    <form id="quiz" novalidate>
+      <div class="question-list">
+        <article class="question-card" data-id="1" data-answer="万位">
+          <div class="meta"><span class="number">第1题</span><span class="topic">数位</span></div>
+          <h2>76 432中的7在什么数位？</h2>
+          <div class="options">
+            <label class="option"><input type="radio" name="q1" value="万位">A. 万位</label>
+            <label class="option"><input type="radio" name="q1" value="千位">B. 千位</label>
+            <label class="option"><input type="radio" name="q1" value="百位">C. 百位</label>
+            <label class="option"><input type="radio" name="q1" value="十位">D. 十位</label>
+          </div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="2" data-answer="8000" data-display="8 000">
+          <div class="meta"><span class="number">第2题</span><span class="topic">数值</span></div>
+          <h2>48 615中的8所表示的数值是多少？</h2>
+          <div class="answer-wrap"><label for="q2">我的答案</label><input class="answer-input" id="q2" name="q2" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="3" data-answer="94632" data-display="94 632">
+          <div class="meta"><span class="number">第3题</span><span class="topic">组成</span></div>
+          <h2>9个万、4个千、6个百、3个十和2个一组成的数是多少？</h2>
+          <div class="answer-wrap"><label for="q3">我的答案</label><input class="answer-input" id="q3" name="q3" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="4" data-answer="60085" data-display="60 085">
+          <div class="meta"><span class="number">第4题</span><span class="topic">写数</span></div>
+          <h2>把“六万零八十五”写成数字。</h2>
+          <div class="answer-wrap"><label for="q4">我的答案</label><input class="answer-input" id="q4" name="q4" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="5" data-answer="七万零四百零九|七萬零四百零九" data-display="七万零四百零九">
+          <div class="meta"><span class="number">第5题</span><span class="topic">读数</span></div>
+          <h2>把70 409写成文字。</h2>
+          <div class="answer-wrap"><label for="q5">我的答案</label><input class="answer-input" id="q5" name="q5" placeholder="用文字填写"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="6" data-answer="80000+3000+500+7" data-display="80 000 + 3 000 + 500 + 7">
+          <div class="meta"><span class="number">第6题</span><span class="topic">展开式</span></div>
+          <h2>83 507的展开式是哪一个？</h2>
+          <div class="options">
+            <label class="option"><input type="radio" name="q6" value="80000+3000+500+7">A. 80 000 + 3 000 + 500 + 7</label>
+            <label class="option"><input type="radio" name="q6" value="8000+3000+500+7">B. 8 000 + 3 000 + 500 + 7</label>
+            <label class="option"><input type="radio" name="q6" value="80000+300+50+7">C. 80 000 + 300 + 50 + 7</label>
+            <label class="option"><input type="radio" name="q6" value="80000+3500+70">D. 80 000 + 3 500 + 70</label>
+          </div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="7" data-answer=">">
+          <div class="meta"><span class="number">第7题</span><span class="topic">比较</span></div>
+          <h2>56 230 ○ 56 203，○里应填什么符号？</h2>
+          <div class="options">
+            <label class="option"><input type="radio" name="q7" value=">">A. &gt;</label>
+            <label class="option"><input type="radio" name="q7" value="&lt;">B. &lt;</label>
+            <label class="option"><input type="radio" name="q7" value="=">C. =</label>
+          </div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="8" data-answer="90909" data-display="90 909">
+          <div class="meta"><span class="number">第8题</span><span class="topic">比较</span></div>
+          <h2>以下哪一个数比较大？</h2>
+          <div class="options">
+            <label class="option"><input type="radio" name="q8" value="90099">A. 90 099</label>
+            <label class="option"><input type="radio" name="q8" value="90909">B. 90 909</label>
+          </div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="9" data-answer="42310,43120,43210" data-display="42 310，43 120，43 210">
+          <div class="meta"><span class="number">第9题</span><span class="topic">排序</span></div>
+          <h2>把43 210、43 120、42 310从小到大排列。</h2>
+          <p class="hint">请依次填写三个数，用逗号隔开。</p>
+          <div class="answer-wrap"><label for="q9">我的答案</label><input class="answer-input" id="q9" name="q9" placeholder="例如：12 345，23 456，34 567"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="10" data-answer="69999" data-display="69 999">
+          <div class="meta"><span class="number">第10题</span><span class="topic">相邻数</span></div>
+          <h2>70 000的前一个数是多少？</h2>
+          <div class="answer-wrap"><label for="q10">我的答案</label><input class="answer-input" id="q10" name="q10" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="11" data-answer="100000" data-display="100 000">
+          <div class="meta"><span class="number">第11题</span><span class="topic">相邻数</span></div>
+          <h2>99 999的后一个数是多少？</h2>
+          <div class="answer-wrap"><label for="q11">我的答案</label><input class="answer-input" id="q11" name="q11" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="12" data-answer="35800" data-display="35 800">
+          <div class="meta"><span class="number">第12题</span><span class="topic">数列</span></div>
+          <h2>35 600，35 700，______，35 900</h2>
+          <p class="hint">找一找每相邻两个数相差多少。</p>
+          <div class="answer-wrap"><label for="q12">我的答案</label><input class="answer-input" id="q12" name="q12" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="13" data-answer="7">
+          <div class="meta"><span class="number">第13题</span><span class="topic">数位</span></div>
+          <h2>82 746中的百位数字是什么？</h2>
+          <div class="options">
+            <label class="option"><input type="radio" name="q13" value="2">A. 2</label>
+            <label class="option"><input type="radio" name="q13" value="7">B. 7</label>
+            <label class="option"><input type="radio" name="q13" value="4">C. 4</label>
+            <label class="option"><input type="radio" name="q13" value="6">D. 6</label>
+          </div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="14" data-answer="5000" data-display="5 000">
+          <div class="meta"><span class="number">第14题</span><span class="topic">数值</span></div>
+          <h2>95 284中的5所表示的数值是多少？</h2>
+          <div class="answer-wrap"><label for="q14">我的答案</label><input class="answer-input" id="q14" name="q14" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+
+        <article class="question-card" data-id="15" data-answer="58064" data-display="58 064">
+          <div class="meta"><span class="number">第15题</span><span class="topic">综合</span></div>
+          <h2>50 000 + 8 000 + 60 + 4 = ______</h2>
+          <div class="answer-wrap"><label for="q15">我的答案</label><input class="answer-input" id="q15" name="q15" inputmode="numeric" placeholder="填写数字"></div><p class="feedback"></p>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button class="main-button" type="submit" id="submitButton">提交成绩</button>
+        <button class="secondary-button" type="button" id="resetButton">重新作答</button>
+      </div>
+    </form>
+    <p class="footer-note">按“提交成绩”后，姓名和成绩会自动传送到老师的 Google Sheet。</p>
+  </main>
+
+  <script>
+    const quiz = document.getElementById('quiz');
+    const cards = [...document.querySelectorAll('.question-card')];
+    const result = document.getElementById('result');
+    const scoreBox = document.getElementById('score');
+    const message = document.getElementById('message');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+    const submitButton = document.getElementById('submitButton');
+    const submitStatus = document.getElementById('submitStatus');
+    const SCORE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw-6JRk_mokB-fEfEc4MQHtN7TOOsZ5sz7_t6v2LHA36WiL0bfBtaIy6k7rc_iogBxw/exec';
+
+    function normalize(value) {
+      return String(value || '').trim().replace(/[\s，]/g, '').replace(/＋/g, '+');
+    }
+
+    function getValue(card) {
+      const checked = card.querySelector('input[type="radio"]:checked');
+      const text = card.querySelector('.answer-input');
+      return checked ? checked.value : text ? text.value : '';
+    }
+
+    function updateProgress() {
+      const answered = cards.filter(card => normalize(getValue(card))).length;
+      progressText.textContent = `${answered} / ${cards.length}`;
+      progressFill.style.width = `${answered / cards.length * 100}%`;
+    }
+
+    quiz.addEventListener('input', updateProgress);
+    quiz.addEventListener('change', updateProgress);
+
+    quiz.addEventListener('submit', async event => {
+      event.preventDefault();
+      const nameInput = document.getElementById('studentName');
+      const name = nameInput.value.trim();
+      if (!name) {
+        alert('请先填写姓名，再提交成绩。');
+        nameInput.focus();
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = '正在提交…';
+      let score = 0;
+      cards.forEach(card => {
+        const given = normalize(getValue(card));
+        const accepted = card.dataset.answer.split('|').map(normalize);
+        const correct = accepted.includes(given);
+        const feedback = card.querySelector('.feedback');
+        card.classList.remove('correct', 'wrong');
+        card.classList.add(correct ? 'correct' : 'wrong');
+        if (correct) {
+          score += 1;
+          feedback.textContent = '✓ 回答正确';
+        } else {
+          feedback.textContent = `✗ 正确答案：${card.dataset.display || card.dataset.answer.split('|')[0]}`;
+        }
+      });
+      scoreBox.textContent = `${score} / ${cards.length}`;
+      message.textContent = score === 15
+        ? `${name ? name + '，' : ''}全部正确，太棒了！`
+        : score >= 12
+          ? `${name ? name + '，' : ''}表现很好，再订正错题就更棒了！`
+          : `${name ? name + '，' : ''}看看红色提示，再试一次吧！`;
+
+      try {
+        await fetch(SCORE_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ name, score, total: cards.length })
+        });
+        submitStatus.textContent = '✓ 成绩已提交给老师';
+        submitStatus.classList.remove('error');
+        submitButton.textContent = '成绩已提交';
+      } catch (error) {
+        submitStatus.textContent = '成绩暂时无法提交，请检查网络后再试。';
+        submitStatus.classList.add('error');
+        submitButton.disabled = false;
+        submitButton.textContent = '重新提交成绩';
+      }
+
+      result.classList.add('show');
+      result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    document.getElementById('resetButton').addEventListener('click', () => {
+      quiz.reset();
+      cards.forEach(card => card.classList.remove('correct', 'wrong'));
+      result.classList.remove('show');
+      submitStatus.textContent = '';
+      submitStatus.classList.remove('error');
+      submitButton.disabled = false;
+      submitButton.textContent = '提交成绩';
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
